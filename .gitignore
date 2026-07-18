@@ -1,0 +1,25 @@
+# Local build output
+*.obj
+*.exe
+keil/Objects/
+keil/*.log
+
+# Host-test and verification artifacts
+tests/artifacts/
+
+# Local brainstorming/session state
+.superpowers/
+findings.md
+progress.md
+task_plan.md
+
+# Keil generated or user-specific files
+keil/*.map
+keil/*.uvguix.*
+
+# Editor and OS metadata
+.vs/
+.vscode/
+*.user
+*.suo
+Thumbs.db
