@@ -8,6 +8,10 @@
 
 #define WS2812_LED_COUNT (3U)
 #define WS2812_RESET_CYCLES (3000U)
+#define WS2812_T0H_CYCLES (1U)
+#define WS2812_T0L_CYCLES (5U)
+#define WS2812_T1H_CYCLES (4U)
+#define WS2812_T1L_CYCLES (2U)
 
 typedef struct {
     uint8_t red;
@@ -20,22 +24,22 @@ static uint8_t g_brightness;
 static uint8_t g_ledColors[WS2812_LED_COUNT];
 static bool g_stateInitialized;
 
-static void Ws2812_DelayCycles(uint32_t cycles)
+static inline void Ws2812_DelayCycles(uint32_t cycles)
 {
     while (cycles-- > 0U) {
         __NOP();
     }
 }
 
-static void Ws2812_SendBit(bool one)
+static inline void Ws2812_SendBit(bool one)
 {
     DL_GPIO_setPins(CAR_WS2812_PORT, CAR_WS2812_PIN);
-    Ws2812_DelayCycles(one ? 18U : 9U);
+    Ws2812_DelayCycles(one ? WS2812_T1H_CYCLES : WS2812_T0H_CYCLES);
     DL_GPIO_clearPins(CAR_WS2812_PORT, CAR_WS2812_PIN);
-    Ws2812_DelayCycles(one ? 22U : 31U);
+    Ws2812_DelayCycles(one ? WS2812_T1L_CYCLES : WS2812_T0L_CYCLES);
 }
 
-static void Ws2812_SendByte(uint8_t value)
+static inline void Ws2812_SendByte(uint8_t value)
 {
     uint8_t bit;
 

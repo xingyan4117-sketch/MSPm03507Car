@@ -95,6 +95,17 @@ static uint8_t CommandTask_SubItemCount(const AppMotorCommand *command)
     return APP_LED_SUBITEM_COUNT_TOTAL;
 }
 
+static bool CommandTask_IsBackItem(const AppMotorCommand *command)
+{
+    if (command->menuItem == APP_MENU_MOTOR) {
+        return command->menuSubItem == APP_MOTOR_SUBITEM_BACK;
+    }
+    if (command->menuItem == APP_MENU_BUZZER) {
+        return command->menuSubItem == APP_BUZZER_SUBITEM_BACK;
+    }
+    return command->menuSubItem == APP_LED_SUBITEM_BACK;
+}
+
 void CommandTask_ApplyMenuEvents(AppMotorCommand *command, bool key1,
     bool key2, bool key3)
 {
@@ -129,9 +140,7 @@ void CommandTask_ApplyMenuEvents(AppMotorCommand *command, bool key1,
             command->menuSubItem = (uint8_t)((command->menuSubItem + 1U) % itemCount);
         }
         if (key3) {
-            if (command->menuSubItem == APP_MOTOR_SUBITEM_BACK ||
-                command->menuSubItem == APP_BUZZER_SUBITEM_BACK ||
-                command->menuSubItem == APP_LED_SUBITEM_BACK) {
+            if (CommandTask_IsBackItem(command)) {
                 command->menuLevel = 0U;
             } else {
                 command->editMode = 1U;

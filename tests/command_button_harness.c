@@ -104,7 +104,12 @@ int main(void)
     assert(command.buzzerVolume == 10U);
 
     command.menuItem = APP_MENU_LED;
+    command.menuLevel = 1U;
+    command.editMode = 0U;
     command.menuSubItem = APP_LED_SUBITEM_LED1;
+    CommandTask_ApplyMenuEvents(&command, false, false, true);
+    assert(command.menuLevel == 1U);
+    assert(command.editMode == 1U);
     command.ledColor[0] = APP_LED_COLOR_RED;
     command.ledColor[1] = APP_LED_COLOR_BLUE;
     command.ledColor[2] = APP_LED_COLOR_GREEN;
