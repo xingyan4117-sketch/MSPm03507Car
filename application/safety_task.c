@@ -16,6 +16,11 @@
 static StaticTask_t g_safetyTaskStorage;
 static StackType_t g_safetyTaskStack[SAFETY_TASK_STACK_WORDS];
 
+static bool SafetyTask_PeripheralOutputsUnsafe(AppState state)
+{
+    return (state == APP_STATE_ESTOP) || (state == APP_STATE_FAULT);
+}
+
 static SafetyInput SafetyTask_MakeInput(const AppMotorCommand *command,
     const AppMotorStatus *motorStatus, bool keyPressed, bool externalFault,
     bool clearRequest, uint32_t nowMs)
@@ -85,8 +90,10 @@ void SafetyTask_ProcessCycle(SafetyController *controller,
         published.dutyB = 0;
         published.dutyC = 0;
         published.dutyD = 0;
-        BspBuzzer_Stop();
-        BspWs2812_Off();
+        if (SafetyTask_PeripheralOutputsUnsafe(published.state)) {
+            BspBuzzer_Stop();
+            BspWs2812_Off();
+        }
     }
     (void) App_PublishSafetyStatus(&published);
     (void) App_PublishStatus(&published);

@@ -9,6 +9,7 @@ $command = Join-Path $root 'application\command_task.c'
 $types = Join-Path $root 'application\app_types.h'
 $init = Join-Path $root 'application\app_init.c'
 $ui = Join-Path $root 'module\st7735_ui.c'
+$safety = Join-Path $root 'application\safety_task.c'
 
 function Require-Token([string] $path, [string] $token, [string] $description) {
     if ((Get-Content -LiteralPath $path -Raw) -notmatch [regex]::Escape($token)) {
@@ -38,5 +39,6 @@ foreach ($token in @('buzzerMode', 'buzzerVolume', 'ledCount', 'ledBrightness'))
 foreach ($token in @('MOTOR', 'SPEED', 'BUZZER', 'MODE', 'LED', 'COUNT', 'LED1', 'LED2', 'LED3', 'BRI')) {
     Require-Token $ui $token 'menu display label'
 }
+Require-Token $safety 'SafetyTask_PeripheralOutputsUnsafe' 'safety peripheral shutdown policy'
 
 Write-Host 'PASS: menu, buzzer, and WS2812 contracts are complete.'
