@@ -75,3 +75,5 @@ DAPLink 使用 SWD、1 MHz 和 MSPM0G1X0X/G3X0X 128 KB Flash 算法。Keil 可�
 The local menu uses the three expansion buttons: KEY1/PA14 moves up or increases a value, KEY2/PA15 moves down or decreases a value, and KEY3/PA16 enters, confirms, or returns. The main menu contains MOTOR, BUZZER, and LED submenus.
 
 MOTOR controls all four logical motor channels together from 0 to 600 RPM in 10 RPM steps. BUZZER controls the active buzzer on PB27 with OFF, CONT, SLOW, and FAST gating modes plus 10% to 100% gate volume; it does not change the buzzer's internal tone frequency. LED controls three serial WS2812B devices on PA29 with count 0 to 3, brightness 0% to 100%, and independent LED1/LED2/LED3 colors. PB22 remains the onboard LED.
+
+Power-on behavior is safe standby: the default command is `READY` with all four target RPM values set to zero. The motors start only after the MOTOR submenu is confirmed to RUN.

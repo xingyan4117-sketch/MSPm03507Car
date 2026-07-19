@@ -54,7 +54,7 @@ bool App_Init(void)
 AppMotorCommand App_DefaultCommand(void)
 {
     AppMotorCommand command = {
-        .state = APP_STATE_RUN,
+        .state = APP_STATE_READY,
         .clearRequest = 0U,
         .externalFault = 0U,
         .reserved = 0U,
@@ -69,10 +69,10 @@ AppMotorCommand App_DefaultCommand(void)
         .ledColor = { APP_LED_COLOR_RED, APP_LED_COLOR_RED, APP_LED_COLOR_RED },
         .sequence = 0U,
         .issuedAtMs = 0U,
-        .targetRpmA = COMMAND_START_RPM,
-        .targetRpmB = COMMAND_START_RPM,
-        .targetRpmC = COMMAND_START_RPM,
-        .targetRpmD = COMMAND_START_RPM
+        .targetRpmA = 0,
+        .targetRpmB = 0,
+        .targetRpmC = 0,
+        .targetRpmD = 0
     };
 
     return command;
