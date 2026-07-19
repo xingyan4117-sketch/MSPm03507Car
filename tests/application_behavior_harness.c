@@ -33,6 +33,7 @@ static AppMotorCommand ApplicationHarness_MakeRunCommand(void)
         .clearRequest = 0U,
         .externalFault = 0U,
         .reserved = 0U,
+        .motorEnableMask = APP_MOTOR_ENABLE_ALL,
         .sequence = 7U,
         .issuedAtMs = 100U,
         .targetRpmA = 100,
@@ -98,6 +99,28 @@ static void ApplicationHarness_VerifyPureMotorControlInterlocks(void)
     assert(status.dutyC == -5);
     assert(status.dutyD == 0);
     assert(status.invalidTransitionsC == 1U);
+
+    command.motorEnableMask = APP_MOTOR_ENABLE_A | APP_MOTOR_ENABLE_C;
+    encoders.rpmA = 0;
+    encoders.rpmB = 0;
+    encoders.rpmC = 0;
+    encoders.rpmD = 0;
+    SpeedPid_Reset(&pidA);
+    SpeedPid_Reset(&pidB);
+    SpeedPid_Reset(&pidC);
+    SpeedPid_Reset(&pidD);
+    MotorControl_Process(&pidA, &pidB, &pidC, &pidD, &command, 150U,
+        &encoders, &safetyStatus, &status);
+    assert(status.motorEnableMask == (APP_MOTOR_ENABLE_A | APP_MOTOR_ENABLE_C));
+    assert(status.dutyA == 100);
+    assert(status.dutyB == 0);
+    assert(status.dutyC == -80);
+    assert(status.dutyD == 0);
+    assert(pidB.integral == 0);
+    assert(pidB.previousError == 0);
+    assert(pidD.integral == 0);
+    assert(pidD.previousError == 0);
+    command.motorEnableMask = APP_MOTOR_ENABLE_ALL;
 
     safetyStatus.state = APP_STATE_READY;
     MotorControl_Process(&pidA, &pidB, &pidC, &pidD, &command, 151U, &encoders, &safetyStatus,
@@ -184,9 +207,43 @@ static void ApplicationHarness_VerifyTaskCycleInterlock(AppState unsafeState)
     assert(ApplicationHost_GetLastDutyD() == 60);
 }
 
+static void ApplicationHarness_VerifyTaskCycleChannelDisable(void)
+{
+    AppMotorCommand enabledCommand = ApplicationHarness_MakeRunCommand();
+    AppMotorCommand selectiveCommand = enabledCommand;
+    AppMotorStatus runSafety = ApplicationHarness_MakeSafetyStatus(APP_STATE_RUN);
+    const AppMotorStatus *publishedStatus;
+
+    selectiveCommand.motorEnableMask = APP_MOTOR_ENABLE_A | APP_MOTOR_ENABLE_C;
+    selectiveCommand.sequence++;
+    ApplicationHost_Reset();
+    ApplicationHost_SetTickCount(150U);
+    ApplicationHost_ScheduleCommandRead(0U, &enabledCommand, true);
+    ApplicationHost_ScheduleCommandRead(1U, &selectiveCommand, true);
+    ApplicationHost_ScheduleSafetyRead(0U, &runSafety, true);
+    ApplicationHost_ScheduleSafetyRead(1U, &runSafety, true);
+    assert(MotorControl_Init());
+    assert(ApplicationHost_RunMotorControlTaskCycles(2U));
+
+    publishedStatus = ApplicationHost_GetPublishedMotorStatus();
+    assert(publishedStatus != NULL);
+    assert(publishedStatus->motorEnableMask ==
+        (APP_MOTOR_ENABLE_A | APP_MOTOR_ENABLE_C));
+    assert(ApplicationHost_GetStopCoastCalls() == 0U);
+    assert(ApplicationHost_GetSetDutyACalls() == 2U);
+    assert(ApplicationHost_GetSetDutyBCalls() == 2U);
+    assert(ApplicationHost_GetSetDutyCCalls() == 2U);
+    assert(ApplicationHost_GetSetDutyDCalls() == 2U);
+    assert(ApplicationHost_GetLastDutyA() == 100);
+    assert(ApplicationHost_GetLastDutyB() == 0);
+    assert(ApplicationHost_GetLastDutyC() == -80);
+    assert(ApplicationHost_GetLastDutyD() == 0);
+}
+
 int main(void)
 {
     ApplicationHarness_VerifyPureMotorControlInterlocks();
+    ApplicationHarness_VerifyTaskCycleChannelDisable();
     ApplicationHarness_VerifyTaskCycleInterlock(APP_STATE_ESTOP);
     ApplicationHarness_VerifyTaskCycleInterlock(APP_STATE_FAULT);
 

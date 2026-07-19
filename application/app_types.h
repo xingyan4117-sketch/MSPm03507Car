@@ -35,8 +35,21 @@ enum {
 enum {
     APP_MOTOR_SUBITEM_RUN = 0U,
     APP_MOTOR_SUBITEM_SPEED = 1U,
-    APP_MOTOR_SUBITEM_BACK = 2U,
-    APP_MOTOR_SUBITEM_COUNT = 3U
+    APP_MOTOR_SUBITEM_ENABLE_A = 2U,
+    APP_MOTOR_SUBITEM_ENABLE_B = 3U,
+    APP_MOTOR_SUBITEM_ENABLE_C = 4U,
+    APP_MOTOR_SUBITEM_ENABLE_D = 5U,
+    APP_MOTOR_SUBITEM_BACK = 6U,
+    APP_MOTOR_SUBITEM_COUNT = 7U
+};
+
+enum {
+    APP_MOTOR_ENABLE_A = (1U << 0),
+    APP_MOTOR_ENABLE_B = (1U << 1),
+    APP_MOTOR_ENABLE_C = (1U << 2),
+    APP_MOTOR_ENABLE_D = (1U << 3),
+    APP_MOTOR_ENABLE_ALL = (APP_MOTOR_ENABLE_A | APP_MOTOR_ENABLE_B |
+        APP_MOTOR_ENABLE_C | APP_MOTOR_ENABLE_D)
 };
 
 enum {
@@ -79,6 +92,7 @@ typedef struct {
     uint8_t menuLevel;
     uint8_t menuSubItem;
     uint8_t editMode;
+    uint8_t motorEnableMask;
     uint8_t buzzerMode;
     uint8_t buzzerVolume;
     uint8_t ledCount;
@@ -115,6 +129,7 @@ typedef struct {
     uint8_t menuLevel;
     uint8_t menuSubItem;
     uint8_t editMode;
+    uint8_t motorEnableMask;
     uint32_t commandSequence;
     uint32_t observedAtMs;
     int32_t targetRpmA;

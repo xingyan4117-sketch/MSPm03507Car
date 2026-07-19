@@ -56,6 +56,12 @@ Require-Regex $uiSource 'static\s+const\s+uint8_t\s+glyph_h\[5\]' 'H glyph for w
 Require-Regex $uiSource "case 'W': return glyph_w" 'W glyph lookup'
 Require-Regex $uiSource "case 'H': return glyph_h" 'H glyph lookup'
 Require-Regex $harnessSource '>LED1:WHT' 'complete white color label assertion'
+foreach ($token in @('APP_MOTOR_SUBITEM_ENABLE_A', 'APP_MOTOR_SUBITEM_ENABLE_B',
+    'APP_MOTOR_SUBITEM_ENABLE_C', 'APP_MOTOR_SUBITEM_ENABLE_D',
+    'APP_MOTOR_ENABLE_A', 'APP_MOTOR_ENABLE_B', 'APP_MOTOR_ENABLE_C',
+    'APP_MOTOR_ENABLE_D')) {
+    Require-Regex $uiSource ([regex]::Escape($token)) 'per-channel motor enable display'
+}
 Reject-Regex $motorControlSource 'BspSpi_|St7735Ui_' 'MotorControl SPI/display dependency'
 Reject-Regex $uiSource 'BspSpi_Write\s*\(\s*true\s*,\s*\(const\s+uint8_t\s*\*\)\s*g_lastFrame' 'raw ASCII pixel transmission'
 

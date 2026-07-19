@@ -75,6 +75,7 @@ void SafetyTask_ProcessCycle(SafetyController *controller,
         published.menuLevel = command->menuLevel;
         published.menuSubItem = command->menuSubItem;
         published.editMode = command->editMode;
+        published.motorEnableMask = command->motorEnableMask;
         published.targetRpmA = command->targetRpmA;
         published.buzzerMode = command->buzzerMode;
         published.buzzerVolume = command->buzzerVolume;

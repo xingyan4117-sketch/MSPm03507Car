@@ -106,6 +106,17 @@ static bool CommandTask_IsBackItem(const AppMotorCommand *command)
     return command->menuSubItem == APP_LED_SUBITEM_BACK;
 }
 
+static uint8_t CommandTask_MotorEnableBit(uint8_t subItem)
+{
+    switch (subItem) {
+    case APP_MOTOR_SUBITEM_ENABLE_A: return APP_MOTOR_ENABLE_A;
+    case APP_MOTOR_SUBITEM_ENABLE_B: return APP_MOTOR_ENABLE_B;
+    case APP_MOTOR_SUBITEM_ENABLE_C: return APP_MOTOR_ENABLE_C;
+    case APP_MOTOR_SUBITEM_ENABLE_D: return APP_MOTOR_ENABLE_D;
+    default: return 0U;
+    }
+}
+
 void CommandTask_ApplyMenuEvents(AppMotorCommand *command, bool key1,
     bool key2, bool key3)
 {
@@ -156,6 +167,14 @@ void CommandTask_ApplyMenuEvents(AppMotorCommand *command, bool key1,
             CommandTask_ApplyButtonEvents(command, true, false, false);
         } else if ((command->menuSubItem == APP_MOTOR_SUBITEM_SPEED) && key2) {
             CommandTask_ApplyButtonEvents(command, false, true, false);
+        } else if (CommandTask_MotorEnableBit(command->menuSubItem) != 0U) {
+            uint8_t bit = CommandTask_MotorEnableBit(command->menuSubItem);
+            if (key1) {
+                command->motorEnableMask |= bit;
+            }
+            if (key2) {
+                command->motorEnableMask &= (uint8_t) ~bit;
+            }
         }
     } else if (command->menuItem == APP_MENU_BUZZER) {
         if (command->menuSubItem == APP_BUZZER_SUBITEM_MODE) {

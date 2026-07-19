@@ -62,6 +62,7 @@ AppMotorCommand App_DefaultCommand(void)
         .menuLevel = 0U,
         .menuSubItem = APP_MOTOR_SUBITEM_RUN,
         .editMode = 0U,
+        .motorEnableMask = APP_MOTOR_ENABLE_ALL,
         .buzzerMode = APP_BUZZER_MODE_OFF,
         .buzzerVolume = 60U,
         .ledCount = 0U,

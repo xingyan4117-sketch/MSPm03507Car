@@ -9,6 +9,8 @@ $gpio = Join-Path $root 'bsp\gpio\bsp_gpio.h'
 $motor = Join-Path $root 'module\tb6612_motor.h'
 $types = Join-Path $root 'application\app_types.h'
 $ui = Join-Path $root 'module\st7735_ui.c'
+$readme = Join-Path $root 'README.md'
+$directionDesign = Join-Path $root 'docs\superpowers\specs\2026-07-19-motor-direction-and-channel-enable-design.md'
 
 function Require-Token([string] $path, [string] $token, [string] $description) {
     if ((Get-Content -LiteralPath $path -Raw) -notmatch [regex]::Escape($token)) {
@@ -72,6 +74,15 @@ foreach ($token in @('targetRpmA', 'targetRpmB', 'targetRpmC', 'targetRpmD', 'rp
 }
 foreach ($token in @('"MOTOR"', '"SPEED:"', '"BUZZER"', '"MODE"', '"LED"', '"COUNT:"', '"BRI:"')) {
     Require-Token $ui $token 'menu screen display and four-channel status'
+}
+
+Require-Token $readme 'independent A/B/C/D channel enable switches' 'direct channel menu documentation'
+foreach ($token in @(
+    'A, B, C, and D always name their corresponding software and D24A channels.',
+    'Positive target RPM means vehicle forward for every channel.',
+    'B/D encoder deltas and RPM values are sign-normalized'
+)) {
+    Require-Token $directionDesign $token 'direct motor channel contract'
 }
 
 Write-Host 'PASS: A/B/C/D port contracts are complete.'

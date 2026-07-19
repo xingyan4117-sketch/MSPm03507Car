@@ -81,8 +81,14 @@ static void TestEncoderBehavior(void)
     ExpectUInt32Equal("encoder B read count", encoderState->readBCalls, 1U);
     ExpectUInt32Equal("encoder C read count stays zero after B read", encoderState->readCCalls,
         0U);
-    ExpectInt32Equal("encoder B delta propagated", snapshot.deltaCounts, 123);
+    ExpectInt32Equal("encoder B delta normalized for vehicle forward",
+        snapshot.deltaCounts, -123);
     ExpectUInt32Equal("encoder B invalid transitions propagated", snapshot.invalidTransitions, 7U);
+
+    HostStub_SetEncoderReadoutA(111, 2U);
+    snapshot = EncoderAb_ReadA();
+    ExpectInt32Equal("encoder A delta remains unchanged", snapshot.deltaCounts, 111);
+    ExpectUInt32Equal("encoder A invalid transitions propagated", snapshot.invalidTransitions, 2U);
 
     HostStub_SetEncoderReadoutC(-222, 4U);
     snapshot = EncoderAb_ReadC();
@@ -90,6 +96,12 @@ static void TestEncoderBehavior(void)
     ExpectUInt32Equal("encoder C read count", encoderState->readCCalls, 1U);
     ExpectInt32Equal("encoder C delta propagated", snapshot.deltaCounts, -222);
     ExpectUInt32Equal("encoder C invalid transitions propagated", snapshot.invalidTransitions, 4U);
+
+    HostStub_SetEncoderReadoutD(40, 1U);
+    snapshot = EncoderAb_ReadD();
+    ExpectInt32Equal("encoder D delta normalized for vehicle forward",
+        snapshot.deltaCounts, -40);
+    ExpectUInt32Equal("encoder D invalid transitions propagated", snapshot.invalidTransitions, 1U);
 
     snapshot.deltaCounts = 20;
     snapshot.invalidTransitions = 0U;

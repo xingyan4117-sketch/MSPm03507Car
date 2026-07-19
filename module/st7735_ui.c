@@ -323,6 +323,18 @@ static void St7735Ui_FormatStatus(const AppMotorStatus *status)
         St7735Ui_AppendText(&length, "SPEED:");
         St7735Ui_AppendSigned(&length, status->targetRpmA);
         St7735Ui_AppendChar(&length, '\n');
+        St7735Ui_AppendMenuLine(&length,
+            selected == APP_MOTOR_SUBITEM_ENABLE_A, "A",
+            (status->motorEnableMask & APP_MOTOR_ENABLE_A) != 0U ? "ON" : "OFF");
+        St7735Ui_AppendMenuLine(&length,
+            selected == APP_MOTOR_SUBITEM_ENABLE_B, "B",
+            (status->motorEnableMask & APP_MOTOR_ENABLE_B) != 0U ? "ON" : "OFF");
+        St7735Ui_AppendMenuLine(&length,
+            selected == APP_MOTOR_SUBITEM_ENABLE_C, "C",
+            (status->motorEnableMask & APP_MOTOR_ENABLE_C) != 0U ? "ON" : "OFF");
+        St7735Ui_AppendMenuLine(&length,
+            selected == APP_MOTOR_SUBITEM_ENABLE_D, "D",
+            (status->motorEnableMask & APP_MOTOR_ENABLE_D) != 0U ? "ON" : "OFF");
         St7735Ui_AppendMenuLine(&length, selected == APP_MOTOR_SUBITEM_BACK,
             "BACK", "");
         St7735Ui_AppendModeLine(&length, status->editMode != 0U);

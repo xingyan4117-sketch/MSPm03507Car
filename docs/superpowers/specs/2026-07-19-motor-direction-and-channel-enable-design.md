@@ -3,8 +3,7 @@
 ## Goal
 
 Define motor direction in vehicle coordinates, normalize encoder feedback, and
-allow A/B/C/D to be enabled independently without preserving obsolete channel
-swap terminology.
+allow A/B/C/D to be enabled independently with direct channel names throughout.
 
 ## Channel and Direction Contract
 
@@ -15,8 +14,6 @@ swap terminology.
 - The existing output polarity that drives the vehicle forward is retained.
 - B/D encoder deltas and RPM values are sign-normalized so vehicle-forward
   motion is positive on all four channels. A/C feedback remains unchanged.
-- The previous A/B and C/D swap explanation is removed from current project,
-  wiring, and screen-mapping documentation.
 
 ## Root Cause
 
@@ -58,7 +55,7 @@ not gain a second enable state; zero duty remains the single hardware stop path.
   while enabled channels continue.
 - Encoder host tests prove B/D feedback is sign-normalized and A/C is unchanged.
 - Screen tests prove all four `A/B/C/D:ON/OFF` states render in the motor menu.
-- Documentation tests reject obsolete channel-swap wording.
+- Documentation tests enforce direct A/B/C/D naming.
 - Full verification must pass all PowerShell tests and a Keil rebuild with zero
   errors and zero warnings.
 

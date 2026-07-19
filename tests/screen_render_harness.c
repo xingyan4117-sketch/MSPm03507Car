@@ -43,6 +43,7 @@ int main(void)
         .menuLevel = 0U,
         .menuSubItem = APP_MOTOR_SUBITEM_RUN,
         .editMode = 0U,
+        .motorEnableMask = APP_MOTOR_ENABLE_A | APP_MOTOR_ENABLE_C,
         .commandSequence = 3U,
         .observedAtMs = 100U,
         .targetRpmA = 100,
@@ -96,6 +97,18 @@ int main(void)
     assert(strstr(frame, ">MOTOR") != NULL);
     assert(strstr(frame, " BUZZER") != NULL);
     assert(strstr(frame, " LED") != NULL);
+
+    status.menuItem = APP_MENU_MOTOR;
+    status.menuLevel = 1U;
+    status.menuSubItem = APP_MOTOR_SUBITEM_ENABLE_B;
+    ScreenStub_Reset();
+    St7735Ui_RenderStatus(&status);
+    frame = St7735Ui_GetLastFrame();
+    assert(frame != NULL);
+    assert(strstr(frame, " A:ON") != NULL);
+    assert(strstr(frame, ">B:OFF") != NULL);
+    assert(strstr(frame, " C:ON") != NULL);
+    assert(strstr(frame, " D:OFF") != NULL);
 
     status.menuItem = APP_MENU_LED;
     status.menuLevel = 1U;

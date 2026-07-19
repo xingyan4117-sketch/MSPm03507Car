@@ -4,7 +4,7 @@
 
 **Goal:** Normalize mirrored motor feedback to vehicle-forward coordinates and add independent A/B/C/D enable controls to the existing motor menu.
 
-**Architecture:** Keep channel identity direct from command through BSP. Normalize B/D encoder samples in `encoder_ab`, carry a four-bit enable mask through command and status objects, and gate PID/output in `MotorControl_Process`; hardware stop remains zero duty. Remove obsolete swapped-channel wording from active documentation.
+**Architecture:** Keep channel identity direct from command through BSP. Normalize B/D encoder samples in `encoder_ab`, carry a four-bit enable mask through command and status objects, and gate PID/output in `MotorControl_Process`; hardware stop remains zero duty. Keep active documentation aligned with the same direct channel contract.
 
 **Tech Stack:** C11, MSPM0 DriverLib, FreeRTOS static tasks/queues, PowerShell/MSVC host tests, Keil MDK.
 
@@ -115,7 +115,7 @@ Run: `./tests/test_application_contracts.ps1`
 
 Expected: PASS.
 
-### Task 4: Render enable states and remove obsolete mapping text
+### Task 4: Render enable states and align direct channel documentation
 
 **Files:**
 - Modify: `module/st7735_ui.c`
@@ -123,7 +123,7 @@ Expected: PASS.
 - Modify: `tests/test_screen_render_contracts.ps1`
 - Modify: `README.md`
 - Modify: `D:/TI/引脚分布/智能小车总体接线方案.md`
-- Modify: `D:/TI/docs/superpowers/specs/2026-07-19-screen-silkscreen-channel-mapping-design.md`
+- Modify: external screen channel design under `D:/TI/docs/superpowers/specs`
 
 **Interfaces:**
 - Consumes: `AppMotorStatus.motorEnableMask`.
@@ -131,17 +131,17 @@ Expected: PASS.
 
 - [ ] **Step 1: Write failing screen and documentation tests**
 
-Render the motor submenu with alternating enable bits and assert the frame contains all four expected channel states. Add checks that active docs no longer contain the old pair-swap mapping or pair-swapped display contract.
+Render the motor submenu with alternating enable bits and assert the frame contains all four expected channel states. Add checks that active docs define direct A/B/C/D wiring and display contracts.
 
 - [ ] **Step 2: Run focused tests and verify RED**
 
 Run: `./tests/test_screen_render_contracts.ps1; ./tests/test_ad_port.ps1`
 
-Expected: FAIL because enable lines are absent and obsolete mapping text remains.
+Expected: FAIL because enable lines and direct-channel documentation checks are absent.
 
 - [ ] **Step 3: Implement display and documentation corrections**
 
-Expand the motor menu renderer using the existing 2x font and `St7735Ui_AppendMenuLine`. Replace old mapping prose with direct A/B/C/D naming and the mirrored-installation forward-direction rule.
+Expand the motor menu renderer using the existing 2x font and `St7735Ui_AppendMenuLine`. Use direct A/B/C/D naming and the mirrored-installation forward-direction rule throughout the documentation.
 
 - [ ] **Step 4: Run focused tests and verify GREEN**
 

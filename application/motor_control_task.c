@@ -46,6 +46,18 @@ static bool MotorControl_SafetyStatusBlocksDrive(const AppMotorStatus *safetySta
     }
 }
 
+static SpeedPidStatus MotorControl_UpdateChannel(SpeedPid *pid, bool enabled,
+    int32_t targetRpm, int32_t measuredRpm)
+{
+    if (!enabled) {
+        SpeedPidStatus stopped = { 0 };
+
+        SpeedPid_Reset(pid);
+        return stopped;
+    }
+    return SpeedPid_Update(pid, targetRpm, measuredRpm);
+}
+
 void MotorControl_Process(SpeedPid *pidA, SpeedPid *pidB, SpeedPid *pidC,
     SpeedPid *pidD,
     const AppMotorCommand *command, uint32_t nowMs,
@@ -78,6 +90,8 @@ void MotorControl_Process(SpeedPid *pidA, SpeedPid *pidB, SpeedPid *pidC,
         .menuLevel = (command != NULL) ? command->menuLevel : 0U,
         .menuSubItem = (command != NULL) ? command->menuSubItem : 0U,
         .editMode = (command != NULL) ? command->editMode : 0U,
+        .motorEnableMask = (command != NULL) ?
+            (command->motorEnableMask & APP_MOTOR_ENABLE_ALL) : 0U,
         .targetRpmA = (command != NULL) ? command->targetRpmA : 0,
         .buzzerMode = (command != NULL) ? command->buzzerMode : APP_BUZZER_MODE_OFF,
         .buzzerVolume = (command != NULL) ? command->buzzerVolume : 0U,
@@ -109,10 +123,18 @@ void MotorControl_Process(SpeedPid *pidA, SpeedPid *pidB, SpeedPid *pidC,
         return;
     }
 
-    pidStatusA = SpeedPid_Update(pidA, command->targetRpmA, encoders->rpmA);
-    pidStatusB = SpeedPid_Update(pidB, command->targetRpmB, encoders->rpmB);
-    pidStatusC = SpeedPid_Update(pidC, command->targetRpmC, encoders->rpmC);
-    pidStatusD = SpeedPid_Update(pidD, command->targetRpmD, encoders->rpmD);
+    pidStatusA = MotorControl_UpdateChannel(pidA,
+        (command->motorEnableMask & APP_MOTOR_ENABLE_A) != 0U,
+        command->targetRpmA, encoders->rpmA);
+    pidStatusB = MotorControl_UpdateChannel(pidB,
+        (command->motorEnableMask & APP_MOTOR_ENABLE_B) != 0U,
+        command->targetRpmB, encoders->rpmB);
+    pidStatusC = MotorControl_UpdateChannel(pidC,
+        (command->motorEnableMask & APP_MOTOR_ENABLE_C) != 0U,
+        command->targetRpmC, encoders->rpmC);
+    pidStatusD = MotorControl_UpdateChannel(pidD,
+        (command->motorEnableMask & APP_MOTOR_ENABLE_D) != 0U,
+        command->targetRpmD, encoders->rpmD);
     status->state = APP_STATE_RUN;
     status->commandTimedOut = 0U;
     status->commandSequence = command->sequence;

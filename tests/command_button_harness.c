@@ -11,6 +11,7 @@ int main(void)
         .clearRequest = 0U,
         .externalFault = 0U,
         .reserved = 0U,
+        .motorEnableMask = APP_MOTOR_ENABLE_ALL,
         .sequence = 0U,
         .issuedAtMs = 0U,
         .targetRpmA = COMMAND_MAX_RPM,
@@ -20,6 +21,8 @@ int main(void)
     };
 
     assert(APP_LED_COLOR_COUNT == 4U);
+    assert(APP_MOTOR_ENABLE_ALL == (APP_MOTOR_ENABLE_A |
+        APP_MOTOR_ENABLE_B | APP_MOTOR_ENABLE_C | APP_MOTOR_ENABLE_D));
 
     CommandTask_ApplyButtonEvents(&command, true, false, false);
     assert(command.targetRpmA == COMMAND_MAX_RPM);
@@ -124,6 +127,23 @@ int main(void)
     assert(command.ledColor[0] == APP_LED_COLOR_RED);
     CommandTask_ApplyMenuEvents(&command, false, true, false);
     assert(command.ledColor[0] == APP_LED_COLOR_WHITE);
+
+    command.menuItem = APP_MENU_MOTOR;
+    command.menuLevel = 1U;
+    command.editMode = 0U;
+    command.menuSubItem = APP_MOTOR_SUBITEM_ENABLE_B;
+    command.motorEnableMask = APP_MOTOR_ENABLE_ALL;
+    CommandTask_ApplyMenuEvents(&command, false, false, true);
+    assert(command.editMode == 1U);
+    CommandTask_ApplyMenuEvents(&command, false, true, false);
+    assert((command.motorEnableMask & APP_MOTOR_ENABLE_B) == 0U);
+    assert((command.motorEnableMask & (APP_MOTOR_ENABLE_A |
+        APP_MOTOR_ENABLE_C | APP_MOTOR_ENABLE_D)) ==
+        (APP_MOTOR_ENABLE_A | APP_MOTOR_ENABLE_C | APP_MOTOR_ENABLE_D));
+    CommandTask_ApplyMenuEvents(&command, true, false, false);
+    assert(command.motorEnableMask == APP_MOTOR_ENABLE_ALL);
+    CommandTask_ApplyMenuEvents(&command, false, false, true);
+    assert(command.editMode == 0U);
 
     puts("PASS: CommandTask button state machine behavior.");
     return 0;

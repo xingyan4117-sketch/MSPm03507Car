@@ -4,34 +4,45 @@
 
 #include <limits.h>
 #include <stddef.h>
+#include <stdbool.h>
 
-static EncoderAbSnapshot EncoderAb_ToSnapshot(BspEncoderReadout readout)
+static int32_t EncoderAb_NegateSaturated(int32_t value)
+{
+    if (value == INT32_MIN) {
+        return INT32_MAX;
+    }
+    return -value;
+}
+
+static EncoderAbSnapshot EncoderAb_ToSnapshot(BspEncoderReadout readout,
+    bool invertDirection)
 {
     EncoderAbSnapshot snapshot;
 
-    snapshot.deltaCounts = readout.delta;
+    snapshot.deltaCounts = invertDirection ?
+        EncoderAb_NegateSaturated(readout.delta) : readout.delta;
     snapshot.invalidTransitions = readout.invalidTransitions;
     return snapshot;
 }
 
 EncoderAbSnapshot EncoderAb_ReadA(void)
 {
-    return EncoderAb_ToSnapshot(BspEncoder_ReadAndClearA());
+    return EncoderAb_ToSnapshot(BspEncoder_ReadAndClearA(), false);
 }
 
 EncoderAbSnapshot EncoderAb_ReadB(void)
 {
-    return EncoderAb_ToSnapshot(BspEncoder_ReadAndClearB());
+    return EncoderAb_ToSnapshot(BspEncoder_ReadAndClearB(), true);
 }
 
 EncoderAbSnapshot EncoderAb_ReadD(void)
 {
-    return EncoderAb_ToSnapshot(BspEncoder_ReadAndClearD());
+    return EncoderAb_ToSnapshot(BspEncoder_ReadAndClearD(), true);
 }
 
 EncoderAbSnapshot EncoderAb_ReadC(void)
 {
-    return EncoderAb_ToSnapshot(BspEncoder_ReadAndClearC());
+    return EncoderAb_ToSnapshot(BspEncoder_ReadAndClearC(), false);
 }
 
 int32_t EncoderAb_CountsToRpm(const EncoderAbSnapshot *snapshot,
