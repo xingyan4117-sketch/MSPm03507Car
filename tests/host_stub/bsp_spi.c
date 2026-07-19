@@ -14,6 +14,7 @@ typedef struct {
 static ScreenStubWrite g_writes[SCREEN_STUB_MAX_WRITES];
 static uint8_t g_lastData[SCREEN_STUB_CAPTURE_BYTES];
 static size_t g_lastDataLength;
+static size_t g_maxWhiteBytes;
 static size_t g_writeCount;
 static size_t g_failWriteCall;
 static bool g_backlightEnabled;
@@ -26,6 +27,7 @@ void ScreenStub_Reset(void)
     (void) memset(g_writes, 0, sizeof(g_writes));
     (void) memset(g_lastData, 0, sizeof(g_lastData));
     g_lastDataLength = 0U;
+    g_maxWhiteBytes = 0U;
     g_writeCount = 0U;
     g_failWriteCall = 0U;
     g_backlightEnabled = false;
@@ -58,6 +60,13 @@ bool BspSpi_Write(bool dataMode, const uint8_t *data, size_t length)
         return false;
     }
     if (dataMode && (length <= sizeof(g_lastData))) {
+        size_t whiteBytes = 0U;
+        size_t index;
+
+        for (index = 0U; index < length; index++) {
+            if (data[index] == 0xFFU) whiteBytes++;
+        }
+        if (whiteBytes > g_maxWhiteBytes) g_maxWhiteBytes = whiteBytes;
         (void) memcpy(g_lastData, data, length);
         g_lastDataLength = length;
     }
@@ -121,4 +130,9 @@ size_t ScreenStub_LastDataLength(void)
 uint8_t ScreenStub_LastDataByte(size_t index)
 {
     return g_lastData[index];
+}
+
+size_t ScreenStub_MaxWhiteBytes(void)
+{
+    return g_maxWhiteBytes;
 }

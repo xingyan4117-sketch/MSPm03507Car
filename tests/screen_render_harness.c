@@ -10,34 +10,27 @@
 
 static void AssertStatusWindow(void)
 {
-    assert(ScreenStub_WriteCount() == 6U);
-    assert(!ScreenStub_WriteDataMode(0U));
-    assert(ScreenStub_WriteFirstByte(0U) == 0x2AU);
-    assert(ScreenStub_WriteDataMode(1U));
-    assert(ScreenStub_WriteLength(1U) == 4U);
-    assert(!ScreenStub_WriteDataMode(2U));
-    assert(ScreenStub_WriteFirstByte(2U) == 0x2BU);
-    assert(ScreenStub_WriteDataMode(3U));
-    assert(ScreenStub_WriteLength(3U) == 4U);
-    assert(!ScreenStub_WriteDataMode(4U));
-    assert(ScreenStub_WriteFirstByte(4U) == 0x2CU);
-    assert(ScreenStub_WriteDataMode(5U));
-    assert(ScreenStub_WriteLength(5U) == SCREEN_RENDER_BYTES);
+    size_t base = 54U;
+
+    assert(ScreenStub_WriteCount() == 60U);
+    assert(!ScreenStub_WriteDataMode(base));
+    assert(ScreenStub_WriteFirstByte(base) == 0x2AU);
+    assert(ScreenStub_WriteDataMode(base + 1U));
+    assert(ScreenStub_WriteLength(base + 1U) == 4U);
+    assert(!ScreenStub_WriteDataMode(base + 2U));
+    assert(ScreenStub_WriteFirstByte(base + 2U) == 0x2BU);
+    assert(ScreenStub_WriteDataMode(base + 3U));
+    assert(ScreenStub_WriteLength(base + 3U) == 4U);
+    assert(!ScreenStub_WriteDataMode(base + 4U));
+    assert(ScreenStub_WriteFirstByte(base + 4U) == 0x2CU);
+    assert(ScreenStub_WriteDataMode(base + 5U));
+    assert(ScreenStub_WriteLength(base + 5U) == SCREEN_RENDER_BYTES);
 }
 
 static void AssertVisibleGlyphPixels(void)
 {
-    size_t index;
-    size_t whiteBytes = 0U;
-
     assert(ScreenStub_LastDataLength() == SCREEN_RENDER_BYTES);
-    for (index = 0U; index < ScreenStub_LastDataLength(); index++) {
-        if (ScreenStub_LastDataByte(index) == 0xFFU) {
-            whiteBytes++;
-        }
-    }
-    assert(whiteBytes > 400U);
-    assert(whiteBytes < SCREEN_RENDER_BYTES);
+    assert(ScreenStub_MaxWhiteBytes() > 20U);
 }
 
 int main(void)

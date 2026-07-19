@@ -23,5 +23,6 @@ size_t ScreenStub_WriteLength(size_t index);
 uint8_t ScreenStub_WriteFirstByte(size_t index);
 size_t ScreenStub_LastDataLength(void);
 uint8_t ScreenStub_LastDataByte(size_t index);
+size_t ScreenStub_MaxWhiteBytes(void);
 
 #endif

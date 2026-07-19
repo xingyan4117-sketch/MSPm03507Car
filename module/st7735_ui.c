@@ -104,6 +104,7 @@ static const uint8_t *St7735Ui_Glyph(char character)
     static const uint8_t glyph_greater[5] = { 0x08U, 0x14U, 0x22U, 0x41U, 0x00U };
     static const uint8_t glyph_k[5] = { 0x7FU, 0x08U, 0x14U, 0x22U, 0x41U };
     static const uint8_t glyph_v[5] = { 0x07U, 0x38U, 0x40U, 0x38U, 0x07U };
+    static const uint8_t glyph_z[5] = { 0x41U, 0x63U, 0x55U, 0x49U, 0x41U };
 
     switch (character) {
     case '0': return glyph_0;
@@ -136,6 +137,7 @@ static const uint8_t *St7735Ui_Glyph(char character)
     case 'U': return glyph_u;
     case 'V': return glyph_v;
     case 'Y': return glyph_y;
+    case 'Z': return glyph_z;
     case ':': return glyph_colon;
     case '-': return glyph_minus;
     case '/': return glyph_slash;
@@ -148,7 +150,8 @@ static void St7735Ui_PutPixel(uint16_t x, uint16_t y, bool foreground)
 {
     size_t index;
 
-    if ((x >= ST7735_UI_DISPLAY_WIDTH) || (y >= ST7735_UI_RENDER_HEIGHT)) {
+    if ((x >= ST7735_UI_DISPLAY_WIDTH) ||
+        (y >= ST7735_UI_RENDER_LINE_HEIGHT)) {
         return;
     }
     index = ((size_t)y * ST7735_UI_DISPLAY_WIDTH + x) * 2U;
@@ -180,35 +183,16 @@ static void St7735Ui_DrawChar(uint16_t x, uint16_t y, char character)
     }
 }
 
-static void St7735Ui_DrawFrameText(void)
+static void St7735Ui_DrawLineText(const char *text)
 {
     uint16_t x = 0U;
-    uint16_t y = 0U;
-    uint8_t line = 0U;
     size_t index;
 
     (void) memset(g_pixelFrame, 0, sizeof(g_pixelFrame));
-    for (index = 0U; (g_lastFrame[index] != '\0') &&
-            (y + ST7735_UI_GLYPH_HEIGHT <= ST7735_UI_RENDER_HEIGHT); index++) {
-        if (g_lastFrame[index] == '\n') {
-            if (line >= g_scrollStart) {
-                x = 0U;
-                y = (uint16_t)(y + ST7735_UI_GLYPH_LINE_ADVANCE);
-            }
-            line++;
-            continue;
-        }
-        if (line < g_scrollStart) {
-            continue;
-        }
-        if (x + ST7735_UI_GLYPH_WIDTH > ST7735_UI_DISPLAY_WIDTH) {
-            x = 0U;
-            y = (uint16_t)(y + ST7735_UI_GLYPH_LINE_ADVANCE);
-        }
-        if (y + ST7735_UI_GLYPH_HEIGHT > ST7735_UI_RENDER_HEIGHT) {
-            break;
-        }
-        St7735Ui_DrawChar(x, y, g_lastFrame[index]);
+    for (index = 0U; (text[index] != '\0') &&
+            (x + ST7735_UI_GLYPH_WIDTH * ST7735_UI_GLYPH_SCALE <=
+                ST7735_UI_DISPLAY_WIDTH); index++) {
+        St7735Ui_DrawChar(x, 0U, text[index]);
         x = (uint16_t)(x + ST7735_UI_GLYPH_ADVANCE);
     }
 }
@@ -291,9 +275,17 @@ static void St7735Ui_AppendMenuLine(size_t *length, bool selected,
 {
     St7735Ui_AppendChar(length, selected ? '>' : ' ');
     St7735Ui_AppendText(length, label);
-    St7735Ui_AppendChar(length, ':');
-    St7735Ui_AppendText(length, value);
+    if (value[0] != '\0') {
+        St7735Ui_AppendChar(length, ':');
+        St7735Ui_AppendText(length, value);
+    }
     St7735Ui_AppendChar(length, '\n');
+}
+
+static void St7735Ui_AppendModeLine(size_t *length, bool editMode)
+{
+    St7735Ui_AppendText(length, "MODE:");
+    St7735Ui_AppendText(length, editMode ? "EDIT" : "SEL");
 }
 
 static void St7735Ui_FormatStatus(const AppMotorStatus *status)
@@ -315,6 +307,7 @@ static void St7735Ui_FormatStatus(const AppMotorStatus *status)
             "BUZZER", "");
         St7735Ui_AppendMenuLine(&length, status->menuItem == APP_MENU_LED,
             "LED", "");
+        St7735Ui_AppendModeLine(&length, status->editMode != 0U);
         return;
     }
 
@@ -328,6 +321,7 @@ static void St7735Ui_FormatStatus(const AppMotorStatus *status)
         St7735Ui_AppendChar(&length, '\n');
         St7735Ui_AppendMenuLine(&length, selected == APP_MOTOR_SUBITEM_BACK,
             "BACK", "");
+        St7735Ui_AppendModeLine(&length, status->editMode != 0U);
         return;
     }
 
@@ -341,6 +335,7 @@ static void St7735Ui_FormatStatus(const AppMotorStatus *status)
         St7735Ui_AppendChar(&length, '\n');
         St7735Ui_AppendMenuLine(&length, selected == APP_BUZZER_SUBITEM_BACK,
             "BACK", "");
+        St7735Ui_AppendModeLine(&length, status->editMode != 0U);
         return;
     }
 
@@ -361,16 +356,45 @@ static void St7735Ui_FormatStatus(const AppMotorStatus *status)
         "LED3", St7735Ui_ColorName(status->ledColor[2]));
     St7735Ui_AppendMenuLine(&length, selected == APP_LED_SUBITEM_BACK,
         "BACK", "");
-    start = selected > 1U ? (uint8_t)(selected - 1U) : 0U;
-    if (start > 3U) start = 3U;
+    St7735Ui_AppendModeLine(&length, status->editMode != 0U);
+    start = 0U;
     g_scrollStart = start;
 }
 
-static bool St7735Ui_WriteRenderFrame(void)
+static bool St7735Ui_WriteRenderLine(uint16_t y)
 {
-    return St7735Ui_SetWindow(0U, 0U, ST7735_UI_DISPLAY_WIDTH - 1U,
-        ST7735_UI_RENDER_HEIGHT - 1U) &&
+    return St7735Ui_SetWindow(0U, y, ST7735_UI_DISPLAY_WIDTH - 1U,
+        (uint16_t)(y + ST7735_UI_RENDER_LINE_HEIGHT - 1U)) &&
         BspSpi_Write(true, g_pixelFrame, sizeof(g_pixelFrame));
+}
+
+static bool St7735Ui_WriteAllLines(void)
+{
+    size_t cursor = 0U;
+    uint16_t line;
+    uint16_t lineCount = (uint16_t)(ST7735_UI_RENDER_HEIGHT /
+        ST7735_UI_RENDER_LINE_HEIGHT);
+    char lineText[ST7735_UI_FRAME_BYTES];
+
+    for (line = 0U; line < lineCount; line++) {
+        size_t length = 0U;
+
+        while ((g_lastFrame[cursor] != '\0') &&
+            (g_lastFrame[cursor] != '\n') &&
+            (length + 1U < sizeof(lineText))) {
+            lineText[length++] = g_lastFrame[cursor++];
+        }
+        lineText[length] = '\0';
+        if (g_lastFrame[cursor] == '\n') {
+            cursor++;
+        }
+        St7735Ui_DrawLineText(lineText);
+        if (!St7735Ui_WriteRenderLine((uint16_t)(line *
+                ST7735_UI_RENDER_LINE_HEIGHT))) {
+            return false;
+        }
+    }
+    return true;
 }
 
 void St7735Ui_Init(void)
@@ -462,15 +486,13 @@ void St7735Ui_Init(void)
 void St7735Ui_Clear(void)
 {
     g_lastFrame[0] = '\0';
-    (void) memset(g_pixelFrame, 0, sizeof(g_pixelFrame));
-    (void) St7735Ui_WriteRenderFrame();
+    (void) St7735Ui_ClearDisplay();
 }
 
 void St7735Ui_RenderStatus(const AppMotorStatus *status)
 {
     St7735Ui_FormatStatus(status);
-    St7735Ui_DrawFrameText();
-    (void) St7735Ui_WriteRenderFrame();
+    (void) St7735Ui_WriteAllLines();
 }
 
 const char *St7735Ui_GetLastFrame(void)
