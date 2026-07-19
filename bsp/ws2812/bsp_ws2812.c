@@ -12,6 +12,10 @@
 #define WS2812_PWM_PERIOD_TICKS (40U) /* 32 MHz / 800 kHz */
 #define WS2812_T0H_TICKS (10U)       /* 0.3125 us */
 #define WS2812_T1H_TICKS (29U)       /* 0.90625 us */
+#define WS2812_T0_COMPARE_TICKS \
+    (WS2812_PWM_PERIOD_TICKS - WS2812_T0H_TICKS)
+#define WS2812_T1_COMPARE_TICKS \
+    (WS2812_PWM_PERIOD_TICKS - WS2812_T1H_TICKS)
 #define WS2812_RESET_CYCLES (CPUCLK_FREQ / 4000U) /* 250 us */
 #define WS2812_DMA_CHANNEL (0U)
 #define WS2812_EVENT_CHANNEL (15U)
@@ -58,7 +62,7 @@ static void Ws2812_AppendByte(uint8_t value, uint8_t *bitIndex)
 
     for (mask = 0x80U; mask != 0U; mask >>= 1U) {
         g_pwmFrame[*bitIndex] = ((value & mask) != 0U) ?
-            WS2812_T1H_TICKS : WS2812_T0H_TICKS;
+            WS2812_T1_COMPARE_TICKS : WS2812_T0_COMPARE_TICKS;
         (*bitIndex)++;
     }
 }
@@ -127,7 +131,7 @@ static void Ws2812_Render(void)
             Ws2812_AppendByte(Ws2812_Scale(rgb.blue), &bitIndex);
         }
     }
-    g_pwmFrame[WS2812_FRAME_BITS] = 0U;
+    g_pwmFrame[WS2812_FRAME_BITS] = WS2812_PWM_PERIOD_TICKS;
     Ws2812_OutputFrame();
 }
 

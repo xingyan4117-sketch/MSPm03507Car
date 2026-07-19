@@ -16,7 +16,9 @@ foreach ($token in @('BspWs2812_SetConfig', 'const uint8_t colors[3]', 'ledCount
 }
 foreach ($token in @('WS2812_FRAME_BITS', 'WS2812_PWM_PERIOD_TICKS',
     'WS2812_T0H_TICKS', 'WS2812_T1H_TICKS', 'DL_DMA_setTransferSize',
-    'DL_TimerG_startCounter', 'DL_DMA_getTransferSize')) {
+    'DL_TimerG_startCounter', 'DL_DMA_getTransferSize',
+    'WS2812_PWM_PERIOD_TICKS - WS2812_T0H_TICKS',
+    'WS2812_PWM_PERIOD_TICKS - WS2812_T1H_TICKS')) {
     Require-Token $source $token 'WS2812B hardware-timed DMA contract'
 }
 if ((Get-Content -LiteralPath $source -Raw) -match 'Ws2812_DelayCycles|Ws2812_SendBit') {
