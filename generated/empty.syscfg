@@ -250,6 +250,7 @@ WS2812.associatedPins[0].assignedPin = "29";
 WS2812.associatedPins[0].direction = "OUTPUT";
 WS2812.associatedPins[0].initialValue = "CLEARED";
 WS2812.associatedPins[0].pin.$assign = "PA29";
+// bsp_ws2812.c temporarily remuxes PA29 to TIMG6_CCP0 and reserves DMA_CH0.
 
 BUZZER.$name = "BUZZER";
 BUZZER.port = "PORTB";
