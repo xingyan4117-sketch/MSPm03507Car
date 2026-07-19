@@ -19,6 +19,8 @@ int main(void)
         .targetRpmD = COMMAND_MAX_RPM
     };
 
+    assert(APP_LED_COLOR_COUNT == 4U);
+
     CommandTask_ApplyButtonEvents(&command, true, false, false);
     assert(command.targetRpmA == COMMAND_MAX_RPM);
     assert(command.targetRpmB == COMMAND_MAX_RPM);
@@ -117,6 +119,11 @@ int main(void)
     assert(command.ledColor[0] == APP_LED_COLOR_GREEN);
     assert(command.ledColor[1] == APP_LED_COLOR_BLUE);
     assert(command.ledColor[2] == APP_LED_COLOR_GREEN);
+    command.ledColor[0] = APP_LED_COLOR_WHITE;
+    CommandTask_ApplyMenuEvents(&command, true, false, false);
+    assert(command.ledColor[0] == APP_LED_COLOR_RED);
+    CommandTask_ApplyMenuEvents(&command, false, true, false);
+    assert(command.ledColor[0] == APP_LED_COLOR_WHITE);
 
     puts("PASS: CommandTask button state machine behavior.");
     return 0;

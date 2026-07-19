@@ -87,6 +87,7 @@ static const uint8_t *St7735Ui_Glyph(char character)
     static const uint8_t glyph_e[5] = { 0x7FU, 0x49U, 0x49U, 0x49U, 0x41U };
     static const uint8_t glyph_f[5] = { 0x7FU, 0x09U, 0x09U, 0x09U, 0x01U };
     static const uint8_t glyph_g[5] = { 0x3EU, 0x41U, 0x49U, 0x49U, 0x7AU };
+    static const uint8_t glyph_h[5] = { 0x7FU, 0x08U, 0x08U, 0x08U, 0x7FU };
     static const uint8_t glyph_i[5] = { 0x00U, 0x41U, 0x7FU, 0x41U, 0x00U };
     static const uint8_t glyph_l[5] = { 0x7FU, 0x40U, 0x40U, 0x40U, 0x40U };
     static const uint8_t glyph_m[5] = { 0x7FU, 0x02U, 0x0CU, 0x02U, 0x7FU };
@@ -104,6 +105,7 @@ static const uint8_t *St7735Ui_Glyph(char character)
     static const uint8_t glyph_greater[5] = { 0x08U, 0x14U, 0x22U, 0x41U, 0x00U };
     static const uint8_t glyph_k[5] = { 0x7FU, 0x08U, 0x14U, 0x22U, 0x41U };
     static const uint8_t glyph_v[5] = { 0x07U, 0x38U, 0x40U, 0x38U, 0x07U };
+    static const uint8_t glyph_w[5] = { 0x7FU, 0x20U, 0x18U, 0x20U, 0x7FU };
     static const uint8_t glyph_z[5] = { 0x41U, 0x63U, 0x55U, 0x49U, 0x41U };
 
     switch (character) {
@@ -124,6 +126,7 @@ static const uint8_t *St7735Ui_Glyph(char character)
     case 'E': return glyph_e;
     case 'F': return glyph_f;
     case 'G': return glyph_g;
+    case 'H': return glyph_h;
     case 'I': return glyph_i;
     case 'K': return glyph_k;
     case 'L': return glyph_l;
@@ -136,6 +139,7 @@ static const uint8_t *St7735Ui_Glyph(char character)
     case 'T': return glyph_t;
     case 'U': return glyph_u;
     case 'V': return glyph_v;
+    case 'W': return glyph_w;
     case 'Y': return glyph_y;
     case 'Z': return glyph_z;
     case ':': return glyph_colon;
@@ -265,7 +269,7 @@ static const char *St7735Ui_BuzzerModeName(uint8_t mode)
 static const char *St7735Ui_ColorName(uint8_t color)
 {
     static const char *const names[APP_LED_COLOR_COUNT] = {
-        "RED", "GRN", "BLU", "YEL", "CYN", "MAG", "WHT"
+        "RED", "GRN", "BLU", "WHT"
     };
     return names[color % APP_LED_COLOR_COUNT];
 }

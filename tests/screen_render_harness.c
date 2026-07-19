@@ -97,6 +97,16 @@ int main(void)
     assert(strstr(frame, " BUZZER") != NULL);
     assert(strstr(frame, " LED") != NULL);
 
+    status.menuItem = APP_MENU_LED;
+    status.menuLevel = 1U;
+    status.menuSubItem = APP_LED_SUBITEM_LED1;
+    status.ledColor[0] = APP_LED_COLOR_WHITE;
+    ScreenStub_Reset();
+    St7735Ui_RenderStatus(&status);
+    frame = St7735Ui_GetLastFrame();
+    assert(frame != NULL);
+    assert(strstr(frame, ">LED1:WHT") != NULL);
+
     printf("PASS: ST7735S fixed-font screen rendering.\n");
     return 0;
 }

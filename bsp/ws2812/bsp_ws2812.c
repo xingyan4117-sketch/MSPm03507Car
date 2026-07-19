@@ -106,7 +106,6 @@ static Ws2812Rgb Ws2812_Color(uint8_t color)
 {
     static const Ws2812Rgb colors[APP_LED_COLOR_COUNT] = {
         { 255U, 0U, 0U }, { 0U, 255U, 0U }, { 0U, 0U, 255U },
-        { 255U, 180U, 0U }, { 0U, 180U, 255U }, { 220U, 0U, 255U },
         { 255U, 255U, 255U }
     };
 
