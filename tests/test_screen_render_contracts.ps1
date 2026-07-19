@@ -50,6 +50,7 @@ Require-Regex $uiSource 'St7735Ui_AppendModeLine' 'selection/edit mode status di
 Require-Regex $uiSource '"SEL"' 'selection-mode status display'
 Require-Regex $uiSource '"EDIT"' 'edit-mode status display'
 Require-Regex $uiSource 'glyph_z' 'Z glyph for BUZZER'
+Require-Regex $uiSource '"GRN"' 'compact color display'
 Reject-Regex $motorControlSource 'BspSpi_|St7735Ui_' 'MotorControl SPI/display dependency'
 Reject-Regex $uiSource 'BspSpi_Write\s*\(\s*true\s*,\s*\(const\s+uint8_t\s*\*\)\s*g_lastFrame' 'raw ASCII pixel transmission'
 

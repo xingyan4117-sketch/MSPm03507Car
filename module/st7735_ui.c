@@ -265,7 +265,7 @@ static const char *St7735Ui_BuzzerModeName(uint8_t mode)
 static const char *St7735Ui_ColorName(uint8_t color)
 {
     static const char *const names[APP_LED_COLOR_COUNT] = {
-        "RED", "GREEN", "BLUE", "YELLOW", "CYAN", "MAGENTA", "WHITE"
+        "RED", "GRN", "BLU", "YEL", "CYN", "MAG", "WHT"
     };
     return names[color % APP_LED_COLOR_COUNT];
 }
